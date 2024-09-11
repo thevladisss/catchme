@@ -2,8 +2,10 @@
   "name": "super-test",
   "version": "1.0.0",
   "description": "Testing tool for web applications",
-  "main": "index.js",
+  "main": "main.js",
+  "workspaces": [],
   "scripts": {
+    "start": "electron main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,5 +20,10 @@
   "bugs": {
     "url": "https://github.com/thevladisss/super-test/issues"
   },
-  "homepage": "https://github.com/thevladisss/super-test#readme"
+  "homepage": "https://github.com/thevladisss/super-test#readme",
+  "devDependencies": {
+    "electron": "^32.0.2",
+    "lerna": "^8.1.8"
+  },
+  "dependencies": {}
 }
