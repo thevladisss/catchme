@@ -9,6 +9,10 @@ export const routes: RouteObject[] = [
       {
         path: "/",
         lazy:() => import("../views/Home/Home").then(module => ({ Component: module.default }))
+      },
+      {
+        path: "/playground",
+        lazy:() => import("../views/Playground/Playground").then(module => ({ Component: module.default }))
       }
     ]
   },
