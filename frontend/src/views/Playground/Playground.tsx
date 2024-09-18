@@ -12,7 +12,7 @@ export default function Playground() {
   })
 
   const [color, setColor] = useState("")
-  const handleCharacterSelected = ({color, nickname}: {color: string, nickname: string}) => {
+  const handleCharacterSaved = ({color, nickname}: {color: string, nickname: string}) => {
     setCharacter((prevState) => ({...prevState, color, nickname}))
     showSelectCharacter(false)
   }
@@ -36,7 +36,7 @@ export default function Playground() {
       <DialogSelectCharacter
         nickname={character.nickname}
         color={character.color}
-        onCharacterSelected={handleCharacterSelected}
+        onCharacterSaved={handleCharacterSaved}
         onBack={handleBack}
         open={isShowingSelectCharacter}
       ></DialogSelectCharacter>

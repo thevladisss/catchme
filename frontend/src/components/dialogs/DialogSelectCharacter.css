@@ -10,3 +10,8 @@
     width: 900px;
 
 }
+
+.dialog-select-character-actions {
+    display: flex;
+    justify-content: end;
+}

@@ -74,7 +74,7 @@ export default function PlayContainer(props: PlayContainerProps) {
 
   return (
     <div className="flex justify-center">
-      <div className="playground bg-white relative full-width" style={{height: "70vh", width: '100%'}}>
+      <div className="playground bg-white relative w-full" style={{height: "70vh", width: '100%'}}>
         <Character
           left={position.left}
           top={position.top}
