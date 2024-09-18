@@ -1,9 +1,9 @@
 import * as React from "react"
-import {Button} from "@mui/material";
+import {Button, ButtonProps} from "@mui/material";
 import {ComponentChildren} from "../../interface/ComponentChildren";
 import {mergeClasses} from "../../utils/mergeClasses";
 
-type BaseButtonProps = React.HTMLProps<any> & ComponentChildren & {
+type BaseButtonProps = React.HTMLProps<any> & ComponentChildren & ButtonProps & {
   fontSize?: string;
   width?: string;
   height?: string;
@@ -15,7 +15,16 @@ const defaultProps = {
 
 export default function BaseButton(props: BaseButtonProps) {
 
-  return (<Button { ...props}>
-      {props.children}
+  const {
+    fontSize,
+    width,
+    height,
+    children, 
+    ...passThroughProps
+  } = props;
+
+
+  return (<Button {...passThroughProps} >
+      {children}
   </Button>)
 }
