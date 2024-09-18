@@ -1,7 +1,9 @@
 import {useState, useEffect, useReducer} from 'react'
 import {useBody} from "../hooks/useBody";
+import Character from "./Character";
 
 type PlayContainerProps = {
+  nickname: string;
   color: string;
 }
 export default function PlayContainer(props: PlayContainerProps) {
@@ -39,7 +41,7 @@ export default function PlayContainer(props: PlayContainerProps) {
   } , []);
 
 
-  const SHIFT_PX = 5;
+  const SHIFT_PX = 15;
 
   const [position, setPosition] = useReducer((prevState: { left: number; top: number}, action: string) => {
     switch(action) {
@@ -71,9 +73,14 @@ export default function PlayContainer(props: PlayContainerProps) {
 
 
   return (
-    <div>
-      <div className="playground bg-white relative" style={{width: '500px', height: '500px'}}>
-        <div className="player absolute" style={{height: "16px", width: '16px', background: props.color, left: position.left, top: position.top}}></div>
+    <div className="flex justify-center">
+      <div className="playground bg-white relative full-width" style={{height: "70vh", width: '100%'}}>
+        <Character
+          left={position.left}
+          top={position.top}
+          color={props.color}
+          nickname={props.nickname}
+        />
       </div>
     </div>
   )

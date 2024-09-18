@@ -6,8 +6,10 @@ import { ChangeEvent} from "react";
 
 type DialogSelectCharacterProps = {
   open: boolean;
+  color: string;
+  nickname: string;
 
-  onCharacterSelected: (settings: {color: string}) => void;
+  onCharacterSelected: (settings: {color: string, nickname: string}) => void;
   onBack: () => void;
 }
 export default function DialogSelectCharacter(props: DialogSelectCharacterProps) {
@@ -15,7 +17,13 @@ export default function DialogSelectCharacter(props: DialogSelectCharacterProps)
   const handleColorChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
 
-    props.onCharacterSelected({color: value})
+    props.onCharacterSelected({color: value, nickname: props.nickname})
+  }
+
+  const handleChangeName = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+
+    props.onCharacterSelected({color: props.color, nickname:  value})
   }
 
   return (
@@ -26,10 +34,22 @@ export default function DialogSelectCharacter(props: DialogSelectCharacterProps)
         </div>
         <div className="dialog-select-character-content">
           <p className="row justify-center p-2">
-            <input type="color" onChange={handleColorChange} />
+            <form>
+              <div className="form-control flex items-center gap-1">
+                <label htmlFor="colorPicker">
+                  Select color for your character
+                </label>
+                <input name="colorPicker" id="colorPicker" type="color" onChange={handleColorChange} />
+              </div>
+              <div className="form-control flex items-center gap-1 mt-2">
+                <label htmlFor="nicknameInput">
+                  Select name of your character
+                </label>
+                <input name="nicknameInput" id="nicknameInput" type="text" onChange={handleChangeName} />
+              </div>
+            </form>
           </p>
           <div className="p-2">
-            Something
           </div>
         </div>
       </div>
