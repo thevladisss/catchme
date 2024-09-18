@@ -1,3 +1,12 @@
-.dialog-select-character {
-    width: min(90%, 500px);
+.dialog-select-character-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    border-bottom: 1px solid #3f3f3f;
+}
+
+
+.dialog-select-character-content {
+    width: 900px;
+
 }
