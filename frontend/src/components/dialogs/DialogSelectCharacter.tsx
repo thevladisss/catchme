@@ -2,7 +2,7 @@ import BaseDialog from "../base/BaseDialog";
 import BaseButton from "../base/BaseButton";
 import {IconButton, Color} from "@mui/material"
 import "./DialogSelectCharacter.css";
-import {ChangeEvent, useState} from "react";
+import {ChangeEvent, FormEvent, useState} from "react";
 import BaseInput from "../base/BaseInput";
 
 type DialogSelectCharacterProps = {
@@ -35,6 +35,11 @@ export default function DialogSelectCharacter(props: DialogSelectCharacterProps)
     props.onCharacterSaved(character)
   }
 
+  const handleSubmitForm = (e: FormEvent) => {
+    e.preventDefault()
+    handleSaveCharacter()
+  }
+
   return (
     <BaseDialog className="dialog-select-character" open={props.open} maxWidth="lg">{
       <div>
@@ -42,7 +47,7 @@ export default function DialogSelectCharacter(props: DialogSelectCharacterProps)
           <BaseButton onClick={props.onBack}>Back</BaseButton>
         </div>
         <div className="dialog-select-character-content">
-            <form onSubmit={(e) => e.preventDefault()} className="w-full p-2">
+            <form onSubmit={handleSubmitForm} className="w-full p-2">
               <div className="form-control flex items-center gap-1">
                 <label htmlFor="colorPicker">
                   Select color for your character
@@ -55,12 +60,12 @@ export default function DialogSelectCharacter(props: DialogSelectCharacterProps)
                 </label>
                 <BaseInput size="small" name="nicknameInput" id="nicknameInput" type="text" onChange={handleChangeName} defaultValue={character.nickname} />
               </div>
+              <div className="p-2 dialog-select-character-actions">
+                <BaseButton type="submit" onClick={handleSaveCharacter}>
+                  Save
+                </BaseButton>
+              </div>
             </form>
-        </div>
-        <div className="p-2 dialog-select-character-actions">
-          <BaseButton onClick={handleSaveCharacter}>
-            Save
-          </BaseButton>
         </div>
       </div>
     }</BaseDialog>

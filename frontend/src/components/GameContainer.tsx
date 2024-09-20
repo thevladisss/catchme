@@ -6,7 +6,7 @@ type PlayContainerProps = {
   nickname: string;
   color: string;
 }
-export default function PlayContainer(props: PlayContainerProps) {
+export default function GameContainer(props: PlayContainerProps) {
 
 
   const {preventScroll} = useBody()
