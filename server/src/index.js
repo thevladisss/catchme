@@ -29,10 +29,25 @@ wss.on("connection", (ws) => {
 
 
   clients.set(ws, metadata);
-  console.log("New connection", id, `Size: ${clients.size}}`)
 
   ws.on('message', (event) => {
     console.log("Message was sent: ", JSON.parse(event))
+  })
+
+
+  clients.forEach((client, connection) => {
+
+    if (connection.readyState === WebSocket.OPEN) {
+
+      connection.send(JSON.stringify({
+        connectionId: 1,
+        type: connectionEvents.EVENT_USER_CONNECTED,
+        id: client.id,
+        color: client.color,
+        playersCount: clients.size,
+        playersOnline: getActiveUsersId()
+      }))
+    }
   })
 
   ws.on('close', () => {
@@ -49,21 +64,6 @@ wss.on("connection", (ws) => {
         playersOnline: getActiveUsersId()
       }))
     })
-  })
-
-  clients.forEach((client, connection) => {
-
-    if (connection.readyState === WebSocket.OPEN) {
-      console.log(`Sending to ${clients.size}`)
-      ws.send(JSON.stringify({
-        connectionId: 1,
-        type: connectionEvents.EVENT_USER_CONNECTED,
-        id: client.id,
-        color: client.color,
-        playersCount: clients.size,
-        playersOnline: getActiveUsersId()
-      }))
-    }
   })
 })
 
