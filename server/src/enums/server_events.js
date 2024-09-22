@@ -1,17 +1,41 @@
-const EVENT_USER_CONNECTED = "user_connected";
-const EVENT_CONNECTION_ESTABLISHED = "connection_established"
-const EVENT_USER_DISCONNECTED = "user_disconnected";
-const EVENT_USER_JOINED_GAME = "user_joined_game";
-const EVENT_USER_LEFT_GAME = "user_left_game";
-const EVENT_USER_INITIALIZED = "user_initialized";
-const EVENT_USER_MOVED = "user_moved";
+//Notifying all clients on certain client's on actions
+
+const NEW_USER_CONNECT = "new_user_connect";
+
+const USER_DISCONNECT = "user_disconnect";
+
+const PLAYER_CONNECT = "player_connect";
+
+const PLAYER_LEFT = "player_left";
+
+const PLAYERS_POSITIONS_UPDATE = "players_positions_update";
+
+
+//Responding to user actions
+const CONNECT_SUCCESS = "connect_success";
+
+const DISCONNECT_SUCCESS = "disconnect_success";
+
+const JOIN_GAME_SUCCESS = "join_game_success";
+
+const PAUSE_GAME_SUCCESS = "pause_game_success";
+
+const QUIT_GAME_SUCCESS = "quit_game_success";
+
+const MOVE_SUCCESS = "user_moved_success";
+
 
 module.exports = {
-  EVENT_CONNECTION_ESTABLISHED,
-  EVENT_USER_DISCONNECTED,
-  EVENT_USER_CONNECTED,
-  EVENT_USER_JOINED_GAME,
-  EVENT_USER_LEFT_GAME,
-  EVENT_USER_INITIALIZED,
-  EVENT_USER_MOVED
+  NEW_USER_CONNECT,
+  USER_DISCONNECT,
+  PLAYER_CONNECT,
+  PLAYER_LEFT,
+  PLAYERS_POSITIONS_UPDATE,
+
+  CONNECT_SUCCESS,
+  DISCONNECT_SUCCESS,
+  JOIN_GAME_SUCCESS,
+  PAUSE_GAME_SUCCESS,
+  QUIT_GAME_SUCCESS,
+  MOVE_SUCCESS
 };

@@ -15,13 +15,16 @@ const { WebSocketServer } = require("ws");
 const wss = new WebSocketServer({ port: 7071 });
 
 wss.on("connection", (ws) => {
+
+
   const connectionMetaData = Connection.storeConnection(ws);
+  console.log("Connection", connectionMetaData)
 
   const clients = Connection.getAllConnections();
 
   ws.send(
     JSON.stringify({
-      type: SERVER_EVENTS.EVENT_CONNECTION_ESTABLISHED,
+      event: SERVER_EVENTS.CONNECT_SUCCESS,
       connectionId: connectionMetaData.id,
       createdAt: connectionMetaData.createdAt
     })
@@ -32,7 +35,7 @@ wss.on("connection", (ws) => {
     if (client.id !== connectionMetaData.id && connection.readyState === WebSocket.OPEN) {
       connection.send(
         JSON.stringify({
-          type: SERVER_EVENTS.EVENT_USER_CONNECTED,
+          event: SERVER_EVENTS.NEW_USER_CONNECT,
           connectionId: connectionMetaData.id,
           createdAt: connectionMetaData.createdAt
         }),
@@ -43,7 +46,7 @@ wss.on("connection", (ws) => {
   ws.on("message", (event) => {
     const data = JSON.parse(event);
 
-    if (data.event === CLIENT_EVENTS.EVENT_JOIN_GAME) {
+    if (data.event === CLIENT_EVENTS.PLAYER_JOIN) {
       const player = Player.initializePlayer(ws,{
         nickname: data.nickname,
         color: data.color
@@ -51,10 +54,12 @@ wss.on("connection", (ws) => {
 
       const clients = Connection.getAllConnections();
 
+      const players = Player.getAllPlayers();
+
       // Sending join notification to the user that just connected
       ws.send(
         JSON.stringify({
-          event: SERVER_EVENTS.EVENT_USER_JOINED_GAME,
+          event: SERVER_EVENTS.JOIN_GAME_SUCCESS,
           playerId: player.playerId,
           nickname: player.nickname,
           left: player.left,
@@ -63,29 +68,36 @@ wss.on("connection", (ws) => {
         }),
       );
 
-      const players = Player.getAllPlayers();
 
+      //Notifying all clients about new player
       clients.forEach((client, connection) => {
-        connection.send(
-          JSON.stringify({
-          event: SERVER_EVENTS.EVENT_USER_JOINED_GAME,
-          playerId: player.playerId,
-          players: [...players.values()],
-        }));
+          connection.send(
+            JSON.stringify({
+              event: SERVER_EVENTS.PLAYER_CONNECT,
+              playerId: player.playerId,
+              players: [...players.values()],
+            }));
       });
     }
-    if (data.event === CLIENT_EVENTS.EVENT_LEFT_GAME) {
+    if (data.event === CLIENT_EVENTS.PLAYER_LEAVE) {
       const player = Player.getPlayer(ws);
 
       if (player) {
         Player.removePlayer(ws);
+
+        ws.send(
+          JSON.stringify({
+            event: SERVER_EVENTS.QUIT_GAME_SUCCESS,
+            playerId: player.playerId
+          })
+        )
 
         const players = Player.getAllPlayers();
 
         players.forEach((client, connection) => {
           connection.send(
             JSON.stringify({
-              event: SERVER_EVENTS.EVENT_USER_DISCONNECTED,
+              event: SERVER_EVENTS.PLAYER_LEFT,
               playerId: player.playerId,
             }),
           );
@@ -93,21 +105,29 @@ wss.on("connection", (ws) => {
       }
     }
 
-    if (data.event === CLIENT_EVENTS.EVENT_USER_MOVED) {
+    if (data.event === CLIENT_EVENTS.PLAYER_MOVE) {
       const player = Player.getPlayer(ws);
 
       if (player) {
         Player.updatePlayerPosition(ws, data.left, data.top);
+
+        ws.send(
+          JSON.stringify({
+            playerId: player.playerId,
+            event: SERVER_EVENTS.MOVE_SUCCESS
+          })
+        )
 
         const players = Player.getAllPlayers();
 
         const positions = Player.getPlayersPositions();
 
         players.forEach((client, connection) => {
-          ws.send(
+          connection.send(
             JSON.stringify({
-              event: SERVER_EVENTS.EVENT_USER_MOVED,
+              event: SERVER_EVENTS.PLAYERS_POSITIONS_UPDATE,
               playerId: player.playerId,
+              players: [...players.values()],
               positions,
             }),
           );
@@ -129,7 +149,7 @@ wss.on("connection", (ws) => {
       players.forEach((client, connection) => {
         connection.send(
           JSON.stringify({
-            event: SERVER_EVENTS.EVENT_USER_DISCONNECTED,
+            event: SERVER_EVENTS.USER_DISCONNECT,
             playerId: player.playerId,
           }),
         );
