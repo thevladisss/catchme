@@ -22,12 +22,15 @@ const Players = new Map();
  * @return {Player}
  */
 const initializePlayer = (connection, player) => {
+
+  const playerId = uniqueId();
+
   Players.set(connection, {
-    playerId: uniqueId(),
-    nickname: player.nickname,
+    playerId,
+    nickname: player.nickname ? player.nickname : `Player ${playerId}`,
     left: 0,
     top: 0,
-    color: player.color,
+    color: player.color ? player.color : '#000',
   });
 
   return Players.get(connection);
