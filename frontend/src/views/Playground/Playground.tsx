@@ -1,72 +1,107 @@
-import {useEffect, useReducer, useState} from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
+import { useSockets } from "../../hooks/useSockets";
 import DialogSelectCharacter from "../../components/dialogs/DialogSelectCharacter";
 import GameContainer from "../../components/GameContainer";
 import BaseButton from "../../components/base/BaseButton";
-import {connectWebSocketServer} from "../../service/websocket";
-import {Grid2 as Grid, Paper, Box} from "@mui/material";
+import { connectWebSocketServer } from "../../service/websocket";
+import { Grid2 as Grid, Paper, Box } from "@mui/material";
 import GameStatistics from "../../components/GameStatistics";
 
-const useSockets = () => {
-
-  let ws: WebSocket | null = null;
-
-  const initConnection = () => {
-    ws = connectWebSocketServer()
-
-    return ws;
-  }
-
-  const closeConnection = () => {
-    if (ws) ws.close()
-  }
-
-  return {ws, initConnection, closeConnection}
-}
-
 export default function Playground() {
+  const { ws, closeConnection } = useSockets();
 
-  const {initConnection, closeConnection} = useSockets();
-
-  const [connectionMetaData, setConnectionMetaData] = useState<{
+  const [connectionMetaData, setCurrentConnection] = useState<{
     connectionId: string;
-    id: string;
-    color: string;
-    playersCount: number;
-  } | null>(null)
+    createdAt: string;
+  } | null>(null);
 
   useEffect(() => {
-    const ws = initConnection()
+    ws.current.onmessage = (event: any) => {
+      const data = event.data ? JSON.parse(event.data) : null;
 
-    ws.onmessage = (event) => {
-     const data = event.data ? JSON.parse(event.data) : null;
+      console.log("Message: ", data);
 
-     console.log("Got message", data)
-     if (data) {
-       setConnectionMetaData(data)
-     }
-    }
+      //TODO: Replace with constants
+      if (data.event === "user_connected") {
+        setCurrentConnection(data);
+      }
+
+      if (data.event === "user_move") {
+      }
+
+      if (data.event === "user_disconnected") {
+      }
+    };
 
     return () => {
-      closeConnection()
-    }
-  }, [])
+      closeConnection();
+    };
+  }, []);
 
-
-  const [isShowingSelectCharacter, showSelectCharacter] = useState(true)
+  const [isShowingSelectCharacter, showSelectCharacter] = useState(true);
 
   const [character, setCharacter] = useState({
     nickname: "",
-    color: ""
-  })
+    color: "#000",
+  });
 
-  const [color, setColor] = useState("")
-  const handleCharacterSaved = ({color, nickname}: {color: string, nickname: string}) => {
-    setCharacter((prevState) => ({...prevState, color, nickname}))
-    showSelectCharacter(false)
-  }
+  const handleCharacterSaved = ({
+    color,
+    nickname,
+  }: {
+    color: string;
+    nickname: string;
+  }) => {
+    setCharacter((prevState) => ({ ...prevState, color, nickname }));
+    showSelectCharacter(false);
+  };
+
+  type Player = {
+    id: string;
+    nickname: string;
+    color: string;
+    top: number;
+    left: number;
+  };
+
+  const [gameSession, setGameSession] = useState<{
+    playerId: string;
+    players: Record<string, Player>;
+  } | null>(null);
+
+  //todo: update logic for notifying server on join
+  useEffect(() => {
+    if (ws.current.readyState === WebSocket.OPEN && !isShowingSelectCharacter)
+      sendJoinGameEvent();
+  }, [isShowingSelectCharacter]);
+
+  //TODO: Move somewhere else
+
+  const sendJoinGameEvent = () => {
+    if (ws.current) {
+      ws.current.send(
+        JSON.stringify({
+          event: "user_join_game",
+          color: character.color,
+          nickname: character.nickname,
+        }),
+      );
+    }
+  };
+
+  const handlePositionChange = (position: { left: number; top: number }) => {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN)
+      ws.current.send(
+        JSON.stringify({
+          event: "user_move",
+          position,
+        }),
+      );
+  };
+
   const handleBack = () => {
-    showSelectCharacter(false)
-  }
+    showSelectCharacter(false);
+  };
 
   return (
     <div>
@@ -75,7 +110,13 @@ export default function Playground() {
       </div>
       <div>
         <div className="flex justify-end">
-          <BaseButton variant={'contained'} onClick={() => {showSelectCharacter(true)}} color="primary">
+          <BaseButton
+            variant={"contained"}
+            onClick={() => {
+              showSelectCharacter(true);
+            }}
+            color="primary"
+          >
             Change character
           </BaseButton>
         </div>
@@ -83,15 +124,21 @@ export default function Playground() {
           <Grid container columns={12}>
             <Grid size={10}>
               <GameContainer
-                nickname={character.nickname}
-                color={character.color}
+                id={connectionMetaData ? connectionMetaData.connectionId : ""}
+                players={[]}
+                onPositionChange={handlePositionChange}
               ></GameContainer>
             </Grid>
             <Grid size="grow">
-              <GameStatistics
-                nickname={character.nickname}
-                playersCount={connectionMetaData? connectionMetaData.playersCount : 0}
-              ></GameStatistics>
+              {false ? (
+                <GameStatistics
+                  className="h-full"
+                  nickname={character.nickname}
+                  playersCount={0}
+                ></GameStatistics>
+              ) : (
+                <div>Nothing</div>
+              )}
             </Grid>
           </Grid>
         </Box>
@@ -104,5 +151,5 @@ export default function Playground() {
         open={isShowingSelectCharacter}
       ></DialogSelectCharacter>
     </div>
-  )
+  );
 }

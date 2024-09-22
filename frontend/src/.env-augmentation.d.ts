@@ -4,4 +4,4 @@ declare namespace NodeJS {
   }
 }
 
-export {}
+export {};
