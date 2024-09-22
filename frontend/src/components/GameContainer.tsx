@@ -42,17 +42,22 @@ export default function GameContainer(props: PlayContainerProps) {
 
   const SHIFT_PX = 15;
 
+  const validatePosition = (topOrLeft: number) => {
+    return topOrLeft >= 0 ? topOrLeft : 0
+  }
+
+  //TODO: Prevent prop move handler call if position does not change upon click (when going beyond)
   const [position, setPosition] = useReducer(
     (prevState: { left: number; top: number }, action: string) => {
       switch (action) {
         case "walkLeft":
-          return { left: prevState.left - SHIFT_PX, top: prevState.top };
+          return { left: validatePosition(prevState.left - SHIFT_PX), top: validatePosition(prevState.top) };
         case "walkRight":
-          return { left: prevState.left + SHIFT_PX, top: prevState.top };
+          return { left: validatePosition(prevState.left + SHIFT_PX), top: validatePosition(prevState.top) };
         case "walkUp":
-          return { left: prevState.left, top: prevState.top - SHIFT_PX };
+          return { left: validatePosition(prevState.left), top: validatePosition(prevState.top - SHIFT_PX) };
         case "walkDown":
-          return { left: prevState.left, top: prevState.top + SHIFT_PX };
+          return { left: validatePosition(prevState.left), top: validatePosition(prevState.top + SHIFT_PX) };
         default:
           return prevState;
       }
@@ -86,6 +91,7 @@ export default function GameContainer(props: PlayContainerProps) {
         {props.players.map((player) => {
           return (
             <Character
+              key={player.playerId}
               color={player.color}
               nickname={player.nickname}
               left={player.left}

@@ -11,12 +11,15 @@ export default function GameStatistics(props: GameStatisticsProps) {
 
   return (
     <div
-      className={mergeClasses("bg-white w-full", className ? className : "")}
+      className={mergeClasses("bg-white w-full p-4 flex flex-col", className ? className : "")}
     >
-      <List>
-        <ListItem>Nickname: {props.nickname}</ListItem>
-        <ListItem>Players: {props.playersCount}</ListItem>
+      <List dense={true}>
+        <ListItem dense={true}>Nickname: {props.nickname}</ListItem>
+        <ListItem dense={true}>Players: {props.playersCount}</ListItem>
       </List>
+      <div className="bg-gray-200 p-4 grow">
+        Log
+      </div>
     </div>
   );
 }

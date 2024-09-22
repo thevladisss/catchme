@@ -1,10 +1,9 @@
 import * as React from "react";
 import { Button, ButtonProps } from "@mui/material";
-import { ComponentChildren } from "../../interface/ComponentChildren";
 import { mergeClasses } from "../../utils/mergeClasses";
 
 type BaseButtonProps = React.HTMLProps<any> &
-  ComponentChildren &
+  { children: React.ReactNode} &
   ButtonProps & {
     fontSize?: string;
     width?: string;

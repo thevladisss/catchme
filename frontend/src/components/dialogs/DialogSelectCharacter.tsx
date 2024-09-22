@@ -56,9 +56,8 @@ export default function DialogSelectCharacter(
             <BaseButton onClick={props.onBack}>Back</BaseButton>
           </div>
           <div className="dialog-select-character-content">
-            <div className="mb-2">Customize your character</div>
             <form onSubmit={handleSubmitForm} className="w-full">
-              <div className="form-control flex items-center gap-1">
+              <div className="form-control flex items-center gap-2">
                 <label htmlFor="colorPicker">
                   Select color for your character
                 </label>
@@ -70,7 +69,7 @@ export default function DialogSelectCharacter(
                   defaultValue={character.color}
                 />
               </div>
-              <div className="form-control flex items-center gap-1 mt-2">
+              <div className="form-control flex items-center gap-2 mt-2">
                 <label htmlFor="nicknameInput">
                   Select name of your character
                 </label>
@@ -82,6 +81,17 @@ export default function DialogSelectCharacter(
                   onChange={handleChangeName}
                   defaultValue={character.nickname}
                 />
+              </div>
+              <div className="form-control flex items-center gap-2 mt-2">
+                <label htmlFor="nicknameInput">
+                  Select your hit sound
+                </label>
+                <BaseButton
+                  disabled={true}
+                  variant="contained"
+                >
+                  Upload
+                </BaseButton>
               </div>
               <div className="p-2 dialog-select-character-actions">
                 <BaseButton color="error" type="submit" variant="contained">
