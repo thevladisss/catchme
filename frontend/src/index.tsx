@@ -3,18 +3,22 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import {ThemeProvider} from "@mui/material";
+import theme from "./plugins/theme";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
 );
 root.render(
-  // process.env.REACT_STRICT ? (
-  //   <React.StrictMode>
-  //     <App />
-  //   </React.StrictMode>
-  // ) : (
-  <App />,
-  // ),
+  process.env.REACT_STRICT ? (
+  <React.StrictMode>
+      <App />
+  </React.StrictMode>
+  ) : (
+  <ThemeProvider theme={theme}>
+    <App />,
+  </ThemeProvider>
+  ),
 );
 
 // If you want to start measuring performance in your app, pass a function
