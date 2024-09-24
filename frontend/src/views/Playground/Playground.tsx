@@ -14,15 +14,32 @@ import {connectWebSocketServer} from "../../service/websocket";
 import {Player} from "../../interface/Player";
 import {Connection} from "../../interface/Connection";
 import {GameSession} from "../../interface/GameSession";
+import {JoinGameEvent} from "../../interface/events/JoinGameEvent";
+import {PlayerConnectEvent} from "../../interface/events/PlayerConnectEvent";
+import {PositionsUpdateEvent} from "../../interface/events/PositionsUpdateEvent";
 
 export default function Playground() {
+
+  const handlePositionChange = (position: { left: number; top: number }) => {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN)
+      sendPlayerMoveEvent(position)
+  };
+
+  const handleBack = () => {
+    showSelectCharacter(false);
+  };
+
+  const [player, setPlayer] = useState<GameSession | null>(null);
+
+  const [players, setGameSessionPlayers] = useState<Player[]>([])
+
+  const playersCount = useMemo(() => players.length, [players])
+
   const ws = useRef<WebSocket | null>(null)
 
   const [connectionMetaData, setCurrentConnection] = useState<Connection | null>(null);
 
   const [isShowingSelectCharacter, showSelectCharacter] = useState(true);
-
-
 
   const handleSaveCharacter = (character: {
     color: string;
@@ -33,12 +50,6 @@ export default function Playground() {
     if (ws.current?.readyState === WebSocket.OPEN)
       sendJoinGameEvent({ color: character.color, nickname: character.nickname });
   };
-
-  const [player, setPlayer] = useState<GameSession | null>(null);
-
-  const [players, setGameSessionPlayers] = useState<Player[]>([])
-
-  const playersCount = useMemo(() => players.length, [players])
 
   const sendSocketEvent = (event: string, payload: Record<string, any> = {}) => {
     if (ws.current) {
@@ -63,14 +74,41 @@ export default function Playground() {
     sendSocketEvent(GameClientEventEnum.PLAYER_MOVE, position)
   };
 
-  const handlePositionChange = (position: { left: number; top: number }) => {
-    if (ws.current && ws.current.readyState === WebSocket.OPEN)
-      sendPlayerMoveEvent(position)
+
+  const getParsedEventData = (event: MessageEvent): any | null => {
+    try {
+      return JSON.parse(event.data);
+    }
+    catch {
+      return null;
+    }
+  }
+
+  const handleConnectEvent = (event: MessageEvent<{connectionId: string; createdAt: string }>) => {
+    setCurrentConnection({
+      connectionId: event.data.connectionId,
+      createdAt: event.data.createdAt
+    });
   };
 
-  const handleBack = () => {
-    showSelectCharacter(false);
-  };
+
+  const handleJoinGameEvent = (event: MessageEvent<JoinGameEvent>) => {
+
+    setPlayer({
+      playerId: event.data.playerId,
+      players: event.data.players,
+      nickname: event.data.nickname,
+      color: event.data.color,
+    });
+  }
+
+  const handlePlayerConnectEvent = (event: MessageEvent<PlayerConnectEvent>) => {
+    setGameSessionPlayers(event.data.players);
+  }
+
+  const handlePositionsUpdateEvent = (event: MessageEvent<PositionsUpdateEvent>) => {
+    setGameSessionPlayers(event.data.players);
+  }
 
   //Handling connection
   useEffect(() => {
@@ -78,40 +116,25 @@ export default function Playground() {
     if (!ws.current) {
       ws.current =  connectWebSocketServer();
 
-      ws.current.onmessage = (event: any) => {
-        const data = event.data ? JSON.parse(event.data) : null;
+      ws.current.onmessage = (event: MessageEvent) => {
+        const data = getParsedEventData(event);
 
-        console.log("Message: ", data);
+        if (!data) return;
 
         if (data.event === GameServerEventSuccessEnum.CONNECT) {
-          setCurrentConnection({
-            connectionId: data.connectionId,
-            createdAt: data.createdAt
-          });
+          handleConnectEvent(event)
         }
 
         if (data.event === GameServerEventSuccessEnum.JOIN_GAME) {
-
-          setPlayer({
-            playerId: data.playerId,
-            players: data.players,
-            nickname: data.nickname,
-            color: data.color,
-          });
+          handleJoinGameEvent(event)
         }
 
         if (data.event === GameServerActionsEventEnum.PLAYER_CONNECT) {
-
-          setGameSessionPlayers(data.players);
-        }
-
-        if (data.event === GameServerActionsEventEnum.PLAYER_CONNECT) {
-          //Show event on new user joining
+          handlePlayerConnectEvent(event);
         }
 
         if (data.event === GameServerActionsEventEnum.PLAYERS_POSITIONS_UPDATE) {
-
-          setGameSessionPlayers(data.players);
+          handlePositionsUpdateEvent(event)
         }
       };
     }
@@ -127,17 +150,6 @@ export default function Playground() {
         <h1 className="text-6xl mb-4 font-bold text-white"> SNAKY.IO </h1>
       </div>
       <div>
-        <div className="flex justify-end">
-          <BaseButton
-            variant={"contained"}
-            onClick={() => {
-              showSelectCharacter(true);
-            }}
-            color="primary"
-          >
-            Change character
-          </BaseButton>
-        </div>
         <Box className="playground-container">
           <Grid container columns={12}>
             <Grid size={10}>
@@ -148,28 +160,27 @@ export default function Playground() {
               ></GameContainer>
             </Grid>
             <Grid className="playground-meta" size="grow">
-              {player ? (
+                <div className="bg-white flex flex-col p-4">
+                    <BaseButton
+                      className="w-full"
+                      variant="outlined"
+                      onClick={() => {
+                        showSelectCharacter(true);
+                      }}
+                      color="primary"
+                    >
+                      Start game
+                    </BaseButton>
+                  </div>
                 <GameStatistics
-                  className="h-full"
-                  nickname={player.nickname}
+                  className="grow"
+                  nickname={player ? player.nickname : ''}
                   playersCount={playersCount}
                 ></GameStatistics>
-              ) : (
-                <div className="bg-white h-full">
-                  Select character first
-                </div>
-              )}
             </Grid>
           </Grid>
         </Box>
       </div>
-      <DialogSelectCharacter
-        nickname={player ? player.nickname : ''}
-        color={player ? player.color : ''}
-        onCharacterSaved={handleSaveCharacter}
-        onBack={handleBack}
-        open={isShowingSelectCharacter}
-      ></DialogSelectCharacter>
     </div>
   );
 }

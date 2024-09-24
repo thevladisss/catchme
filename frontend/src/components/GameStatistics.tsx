@@ -1,5 +1,5 @@
 import { useState, useEffect, HTMLProps } from "react";
-import { List, ListItem } from "@mui/material";
+import {List, ListItem, Skeleton} from "@mui/material";
 import { mergeClasses } from "../utils/mergeClasses";
 
 type GameStatisticsProps = {
@@ -14,10 +14,22 @@ export default function GameStatistics(props: GameStatisticsProps) {
       className={mergeClasses("bg-white w-full p-4 flex flex-col", className ? className : "")}
     >
       <List dense={true}>
-        <ListItem dense={true}>Nickname: {props.nickname}</ListItem>
-        <ListItem dense={true}>Players: {props.playersCount}</ListItem>
+        <ListItem dense={true}>
+          {props.nickname ?
+            'Nickname: ' + props.nickname
+            :
+            <Skeleton width={100} height={20}></Skeleton>
+          }
+        </ListItem>
+        <ListItem dense={true}>
+          {props.playersCount > 0 ?
+            'Players: ' + props.playersCount
+            :
+            <Skeleton width={'100%'} height={20}></Skeleton>
+          }
+        </ListItem>
       </List>
-      <div className="bg-gray-200 p-4 grow">
+      <div className="bg-gray-200 p-4 grow border border-gray-700">
         Log
       </div>
     </div>
