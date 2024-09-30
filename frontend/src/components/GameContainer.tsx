@@ -1,10 +1,14 @@
 import { useState, useEffect, useReducer } from "react";
 import { useBody } from "../hooks/useBody";
 import Character from "./Character";
+import Point from "./Point"
+import {Player as IPlayer} from "../interface/Player";
+import {Point as IPoint} from "../interface/Point";
 
 type PlayContainerProps = {
   id: string;
-  players: any[];
+  players: IPlayer[];
+  points: IPoint[]
 
   onPositionChange: (position: { left: number; top: number }) => void;
 };
@@ -32,6 +36,7 @@ export default function GameContainer(props: PlayContainerProps) {
 
   useEffect(() => {
     const restoreScroll = preventScroll();
+
     document.body.addEventListener("keydown", handleKeyPress);
 
     return () => {
@@ -88,6 +93,14 @@ export default function GameContainer(props: PlayContainerProps) {
         className="playground bg-white relative w-full"
         style={{ height: "70vh", width: "100%" }}
       >
+        {props.points.map((point, index) => {
+          return <Point
+            key={index}
+            left={point.position.left}
+            top={point.position.top}
+            value={point.value}
+          ></Point>
+        })}
         {props.players.map((player) => {
           return (
             <Character

@@ -13,12 +13,15 @@ type BaseButtonProps = React.HTMLProps<any> &
     }
   >;
 
-const defaultProps = {
-  color: "primary",
-};
-
 export default function BaseButton(props: BaseButtonProps) {
-  const { square, fontSize, width, height, children, ...passThroughProps } =
+  const {
+    square,
+    fontSize,
+    width,
+    height,
+    children,
+    ...passThroughProps
+  } =
     props;
 
   const styles = useMemo(() => {

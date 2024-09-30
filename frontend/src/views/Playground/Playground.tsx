@@ -1,12 +1,10 @@
 import "./Playground.css"
 import BaseButton from "../../components/base/BaseButton";
 import GameStatistics from "../../components/GameStatistics";
-import DialogSelectCharacter from "../../components/dialogs/DialogSelectCharacter";
 import GameContainer from "../../components/GameContainer";
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import Grid from "@mui/material/Grid2";
 import Box from "@mui/material/Box";
-import {useEffect, useMemo, useRef, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import { GameClientEventEnum } from "../../enums/GameClientEventEnum";
 import { GameServerActionsEventEnum } from "../../enums/GameServerActionsEventEnum";
 import { GameServerEventSuccessEnum } from "../../enums/GameServerEventSuccessEnum";
@@ -17,38 +15,30 @@ import {GameSession} from "../../interface/GameSession";
 import {JoinGameEvent} from "../../interface/events/JoinGameEvent";
 import {PlayerConnectEvent} from "../../interface/events/PlayerConnectEvent";
 import {PositionsUpdateEvent} from "../../interface/events/PositionsUpdateEvent";
+import {PointsSpawnEvent} from "../../interface/events/PointsSpawnEvent";
 
-export default function Playground() {
+export default function Playground(props?: React.HTMLProps<any>) {
 
   const handlePositionChange = (position: { left: number; top: number }) => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN)
       sendPlayerMoveEvent(position)
   };
 
-  const handleBack = () => {
-    showSelectCharacter(false);
-  };
-
   const [player, setPlayer] = useState<GameSession | null>(null);
 
   const [players, setGameSessionPlayers] = useState<Player[]>([])
 
-  const playersCount = useMemo(() => players.length, [players])
+  const playersCount = useMemo(() => {
+    return players.length
+  }, [players])
 
   const ws = useRef<WebSocket | null>(null)
 
   const [connectionMetaData, setCurrentConnection] = useState<Connection | null>(null);
 
-  const [isShowingSelectCharacter, showSelectCharacter] = useState(true);
-
-  const handleSaveCharacter = (character: {
-    color: string;
-    nickname: string;
-  }) => {
-    showSelectCharacter(false);
-
+  const handleSaveCharacter = () => {
     if (ws.current?.readyState === WebSocket.OPEN)
-      sendJoinGameEvent({ color: character.color, nickname: character.nickname });
+      sendJoinGameEvent();
   };
 
   const sendSocketEvent = (event: string, payload: Record<string, any> = {}) => {
@@ -62,8 +52,8 @@ export default function Playground() {
     }
   }
 
-  const sendJoinGameEvent = (player: { color: string; nickname: string }) => {
-      sendSocketEvent(GameClientEventEnum.PLAYER_JOIN, player)
+  const sendJoinGameEvent = () => {
+      sendSocketEvent(GameClientEventEnum.PLAYER_JOIN)
   };
 
   const sendQuitGameEvent = () => {
@@ -93,7 +83,6 @@ export default function Playground() {
 
 
   const handleJoinGameEvent = (event: MessageEvent<JoinGameEvent>) => {
-
     setPlayer({
       playerId: event.data.playerId,
       players: event.data.players,
@@ -110,6 +99,12 @@ export default function Playground() {
     setGameSessionPlayers(event.data.players);
   }
 
+  const [points, setPoints] = useState<any[]>([])
+
+  const handlePointsSpawnEvent = (event: MessageEvent<PointsSpawnEvent>) => {
+    setPoints(event.data.points as any)
+  }
+
   //Handling connection
   useEffect(() => {
 
@@ -117,24 +112,34 @@ export default function Playground() {
       ws.current =  connectWebSocketServer();
 
       ws.current.onmessage = (event: MessageEvent) => {
+
+        console.log(event)
         const data = getParsedEventData(event);
 
-        if (!data) return;
+        let eventWithData = event;
+
+        if (data) {
+          eventWithData = {...event, data}
+        }
 
         if (data.event === GameServerEventSuccessEnum.CONNECT) {
-          handleConnectEvent(event)
+          handleConnectEvent(eventWithData)
         }
 
         if (data.event === GameServerEventSuccessEnum.JOIN_GAME) {
-          handleJoinGameEvent(event)
+          handleJoinGameEvent(eventWithData)
         }
 
         if (data.event === GameServerActionsEventEnum.PLAYER_CONNECT) {
-          handlePlayerConnectEvent(event);
+          handlePlayerConnectEvent(eventWithData);
         }
 
         if (data.event === GameServerActionsEventEnum.PLAYERS_POSITIONS_UPDATE) {
-          handlePositionsUpdateEvent(event)
+          handlePositionsUpdateEvent(eventWithData)
+        }
+
+        if(data.event === "points_appear") {
+          handlePointsSpawnEvent(eventWithData)
         }
       };
     }
@@ -146,31 +151,32 @@ export default function Playground() {
 
   return (
     <div>
-      <div className="flex justify-center items-center">
-        <h1 className="text-6xl mb-4 font-bold text-white"> SNAKY.IO </h1>
-      </div>
-      <div>
-        <Box className="playground-container">
+      <Box className="playground-container">
           <Grid container columns={12}>
             <Grid size={10}>
               <GameContainer
                 id={connectionMetaData ? connectionMetaData.connectionId : ""}
                 players={players}
+                points={points}
                 onPositionChange={handlePositionChange}
               ></GameContainer>
             </Grid>
             <Grid className="playground-meta" size="grow">
                 <div className="bg-white flex flex-col p-4">
+                  {player ?
+                    <BaseButton variant="contained">
+                      Pause Game
+                    </BaseButton>
+                    :
                     <BaseButton
                       className="w-full"
-                      variant="outlined"
-                      onClick={() => {
-                        showSelectCharacter(true);
-                      }}
+                      variant="contained"
+                      onClick={handleSaveCharacter}
                       color="primary"
                     >
                       Start game
                     </BaseButton>
+                  }
                   </div>
                 <GameStatistics
                   className="grow"
@@ -180,7 +186,6 @@ export default function Playground() {
             </Grid>
           </Grid>
         </Box>
-      </div>
     </div>
   );
 }

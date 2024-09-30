@@ -1,5 +1,5 @@
 export type Player = {
-  id: string;
+  playerId: string;
   nickname: string;
   color: string;
   top: number;

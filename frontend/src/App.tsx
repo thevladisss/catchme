@@ -1,10 +1,16 @@
 import React from "react";
-import router from "./router";
 import "./App.css";
-import { RouterProvider } from "react-router-dom";
-
+import Playground from "./views/Playground/Playground";
+import {palette} from "@mui/system"
+import {Logo} from "./components/Logo";
 function App() {
-  return <RouterProvider router={router}></RouterProvider>;
+
+  return (<div className="bg-red-500 h-screen">
+    <div className="py-4">
+      <Logo></Logo>
+    </div>
+    <Playground className="h-full"></Playground>
+  </div>)
 }
 
 export default App;
