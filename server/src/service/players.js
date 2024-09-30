@@ -1,5 +1,16 @@
 const { uniqueId } = require("lodash/util");
 
+//TODO: REMOVE
+ function getRandomColor() {
+  var letters = '0123456789ABCDEF';
+  var color = '#';
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
+
 /**
  * @typedef Player {{
  *   playerId: string
@@ -18,19 +29,18 @@ const Players = new Map();
 /**
  *
  * @param connection {WebSocket}
- * @param player {{ nickname: string; color:string }}
  * @return {Player}
  */
-const initializePlayer = (connection, player) => {
+const initializePlayer = (connection) => {
 
-  const playerId = uniqueId();
+  const playerId = uniqueId(), color = getRandomColor(), nickname = `Player ${playerId}`;
 
   Players.set(connection, {
     playerId,
-    nickname: player.nickname ? player.nickname : `Player ${playerId}`,
+    nickname,
     left: 0,
     top: 0,
-    color: player.color ? player.color : '#000',
+    color,
   });
 
   return Players.get(connection);

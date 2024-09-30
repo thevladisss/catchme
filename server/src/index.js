@@ -4,21 +4,16 @@ const CLIENT_EVENTS = require("../src/enums/client_events");
 const Connection = require("./service/connection");
 const Player = require("./service/players");
 
-//create a server object:
-// http.createServer(function (req, res) {
-//   res.write('Hello World!'); //write a response to the client
-//   res.end(); //end the response
-// }).listen(8080); //the server object listens on port 8080
-
-const { WebSocketServer } = require("ws");
+const { WebSocketServer, WebSocket } = require("ws");
+const {random} = require("lodash/number");
+const {range} = require("lodash/util");
 
 const wss = new WebSocketServer({ port: 7071 });
 
 wss.on("connection", (ws) => {
 
-
   const connectionMetaData = Connection.storeConnection(ws);
-  console.log("Connection", connectionMetaData)
+
 
   const clients = Connection.getAllConnections();
 
@@ -47,10 +42,7 @@ wss.on("connection", (ws) => {
     const data = JSON.parse(event);
 
     if (data.event === CLIENT_EVENTS.PLAYER_JOIN) {
-      const player = Player.initializePlayer(ws,{
-        nickname: data.nickname,
-        color: data.color
-      });
+      const player = Player.initializePlayer(ws);
 
       const clients = Connection.getAllConnections();
 
@@ -157,3 +149,39 @@ wss.on("connection", (ws) => {
     }
   });
 });
+
+wss.on("listening", () => {
+
+  // random(10, 20)
+  /*
+    1. Get all players and create random amount of points at places that do not
+    match places players and within distance of 5 px from them
+    2. Create logic that tracks if user's position matches position of point
+    3. If it matches the position of the player - delete the point and add it to player
+    4. If there are less points then specific amount - spawn new points
+   */
+
+  setInterval(() => {
+
+    console.log("Sending with interval")
+
+    const players = Player.getAllPlayers();
+
+    players.forEach((client, connection) => {
+      connection.send(
+        JSON.stringify({
+          points: range(10, 15).map(() => {
+            return {
+              position: {
+                left: random(0, 500),
+                top: random(0,500)
+              },
+              value: 1
+            }
+          }),
+          event: "points_appear"
+        })
+      )
+    })
+  }, 1000)
+})

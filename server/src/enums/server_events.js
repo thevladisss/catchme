@@ -18,6 +18,10 @@ const DISCONNECT_SUCCESS = "disconnect_success";
 
 const JOIN_GAME_SUCCESS = "join_game_success";
 
+const POINTS_APPEAR = "points_appear"
+
+const POINT_PICK = "point_pick"
+
 const PAUSE_GAME_SUCCESS = "pause_game_success";
 
 const QUIT_GAME_SUCCESS = "quit_game_success";
