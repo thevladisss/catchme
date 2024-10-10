@@ -102,7 +102,15 @@ export default function Playground(props?: React.HTMLProps<any>) {
   const [points, setPoints] = useState<any[]>([])
 
   const handlePointsSpawnEvent = (event: MessageEvent<PointsSpawnEvent>) => {
-    setPoints(event.data.points as any)
+    setPoints(event.data.points)
+  }
+
+  const [gameLogs, setLogs] = useState<string[]>([])
+
+  const handleLogMessageEvent = (event: MessageEvent<{message: string}>) => {
+    setLogs((prevState) => {
+      return [event.data.message, ...prevState]
+    })
   }
 
   //Handling connection
@@ -140,6 +148,14 @@ export default function Playground(props?: React.HTMLProps<any>) {
 
         if(data.event === "points_appear") {
           handlePointsSpawnEvent(eventWithData)
+        }
+
+        if (data.event == "point_pick") {
+          console.log("Pick point")
+        }
+
+        if (data.event === "log_message") {
+          handleLogMessageEvent(eventWithData)
         }
       };
     }
@@ -182,6 +198,7 @@ export default function Playground(props?: React.HTMLProps<any>) {
                   className="grow"
                   nickname={player ? player.nickname : ''}
                   playersCount={playersCount}
+                  logs={gameLogs}
                 ></GameStatistics>
             </Grid>
           </Grid>

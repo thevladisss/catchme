@@ -5,6 +5,7 @@ import { mergeClasses } from "../utils/mergeClasses";
 type GameStatisticsProps = {
   playersCount: number;
   nickname: string;
+  logs: string[]
 } & HTMLProps<any>;
 export default function GameStatistics(props: GameStatisticsProps) {
   const { className, ...ownProps } = props;
@@ -29,8 +30,12 @@ export default function GameStatistics(props: GameStatisticsProps) {
           }
         </ListItem>
       </List>
-      <div className="bg-gray-200 p-4 grow border border-gray-700">
-        Log
+      <div style={{maxHeight: "375px"}} className="bg-gray-200 p-4 grow border border-gray-700 overflow-auto">
+         {
+           props.logs.map((log) => {
+             return <p className="text-sm">{log}</p>
+           })
+         }
       </div>
     </div>
   );

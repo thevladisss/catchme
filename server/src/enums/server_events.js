@@ -28,6 +28,8 @@ const QUIT_GAME_SUCCESS = "quit_game_success";
 
 const MOVE_SUCCESS = "user_moved_success";
 
+const LOG_MESSAGE = "log_message"
+
 
 module.exports = {
   NEW_USER_CONNECT,
@@ -41,5 +43,8 @@ module.exports = {
   JOIN_GAME_SUCCESS,
   PAUSE_GAME_SUCCESS,
   QUIT_GAME_SUCCESS,
-  MOVE_SUCCESS
+  MOVE_SUCCESS,
+  POINT_PICK,
+  POINTS_APPEAR,
+  LOG_MESSAGE
 };

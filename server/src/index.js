@@ -3,6 +3,7 @@ const SERVER_EVENTS = require("./enums/server_events");
 const CLIENT_EVENTS = require("../src/enums/client_events");
 const Connection = require("./service/connection");
 const Player = require("./service/players");
+const Point = require("./service/Point");
 
 const { WebSocketServer, WebSocket } = require("ws");
 const {random} = require("lodash/number");
@@ -60,6 +61,14 @@ wss.on("connection", (ws) => {
         }),
       );
 
+      const points = Point.getAllPoints();
+
+      ws.send(
+        JSON.stringify({
+          points,
+          event: "points_appear"
+        })
+      )
 
       //Notifying all clients about new player
       clients.forEach((client, connection) => {
@@ -101,7 +110,9 @@ wss.on("connection", (ws) => {
       const player = Player.getPlayer(ws);
 
       if (player) {
-        Player.updatePlayerPosition(ws, data.left, data.top);
+        const newPosition = Player.updatePlayerPosition(ws, data.left, data.top);
+
+        let hasTakenPoint = Point.deletePointByPosition(newPosition);
 
         ws.send(
           JSON.stringify({
@@ -113,6 +124,35 @@ wss.on("connection", (ws) => {
         const players = Player.getAllPlayers();
 
         const positions = Player.getPlayersPositions();
+
+        if (hasTakenPoint) {
+          //Implement scoring logic
+
+          const points = Point.getAllPoints();
+
+          ws.send(
+            JSON.stringify({
+              event: SERVER_EVENTS.POINT_PICK,
+              score: 0
+            })
+          )
+
+          players.forEach((client, connection) => {
+            connection.send(
+              JSON.stringify({
+                points,
+                event: SERVER_EVENTS.POINTS_APPEAR
+              })
+            )
+
+            connection.send(
+              JSON.stringify({
+                event: SERVER_EVENTS.LOG_MESSAGE,
+                message: `Player  ${player.nickname} has taken a point`
+              })
+            )
+          })
+        }
 
         players.forEach((client, connection) => {
           connection.send(
@@ -163,25 +203,43 @@ wss.on("listening", () => {
 
   setInterval(() => {
 
-    console.log("Sending with interval")
+    console.log("Interval")
 
     const players = Player.getAllPlayers();
 
-    players.forEach((client, connection) => {
-      connection.send(
-        JSON.stringify({
-          points: range(10, 15).map(() => {
-            return {
-              position: {
-                left: random(0, 500),
-                top: random(0,500)
-              },
-              value: 1
-            }
-          }),
-          event: "points_appear"
-        })
-      )
-    })
+    let points = Point.getAllPoints();
+
+
+    //TODO: Creare util function that gets random position
+    const getRandomPosition = () => {
+      return {
+        left: random(0, 500),
+        top: random(0,500)
+      }
+    }
+
+    if (points.length < 30) {
+
+      const amountToCreate = range(10, 40);
+
+      points = Point.bulkCreatePoints(amountToCreate.map(() => {
+
+        const position = getRandomPosition();
+
+        return {
+          ...position,
+          value: 1,
+        }
+      }))
+
+      players.forEach((client, connection) => {
+        connection.send(
+          JSON.stringify({
+            points,
+            event: "points_appear"
+          })
+        )
+      })
+    }
   }, 1000)
 })

@@ -12,13 +12,12 @@ const { uniqueId } = require("lodash/util");
 
 
 /**
- * @typedef Player {{
- *   playerId: string
- *   nickname: string
- *   left: number;
- *   top: number;
- *   color: string
- * }}
+ * @typedef Player
+ * @property {string} playerId
+ * @property {string} nickname
+ * @property {number} left
+ * @property {number} top
+ * @property {string} color
  */
 /**
  *

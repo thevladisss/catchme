@@ -35,6 +35,10 @@ export default function GameContainer(props: PlayContainerProps) {
   };
 
   useEffect(() => {
+   if(!props.points) debugger
+  }, [props.points])
+
+  useEffect(() => {
     const restoreScroll = preventScroll();
 
     document.body.addEventListener("keydown", handleKeyPress);
@@ -93,15 +97,16 @@ export default function GameContainer(props: PlayContainerProps) {
         className="playground bg-white relative w-full"
         style={{ height: "70vh", width: "100%" }}
       >
-        {props.points.map((point, index) => {
+        {(props.points && props.points.length) && props.points.map((point, index) => {
           return <Point
             key={index}
-            left={point.position.left}
-            top={point.position.top}
+            left={point.left}
+            top={point.top}
             value={point.value}
           ></Point>
         })}
         {props.players.map((player) => {
+
           return (
             <Character
               key={player.playerId}
