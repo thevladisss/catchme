@@ -18,6 +18,7 @@ const { uniqueId } = require("lodash/util");
  * @property {number} left
  * @property {number} top
  * @property {string} color
+ * @property {number} score
  */
 /**
  *
@@ -40,6 +41,7 @@ const initializePlayer = (connection) => {
     left: 0,
     top: 0,
     color,
+    score: 0
   });
 
   return Players.get(connection);
@@ -103,6 +105,19 @@ const getPlayersPositions = () => {
   }, {});
 };
 
+const updateScoreByOnePoint = (connection) => {
+  const player = Players.get(connection);
+
+  if (player) {
+    player.score++
+
+    return player;
+  }
+  else {
+    throw new Error('Player does not exist')
+  }
+}
+
 module.exports = {
   initializePlayer,
   removePlayer,
@@ -110,4 +125,5 @@ module.exports = {
   getPlayer,
   updatePlayerPosition,
   getPlayersPositions,
+  updateScoreByOnePoint
 };

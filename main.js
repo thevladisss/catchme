@@ -1,6 +1,8 @@
 
 const {app, BrowserWindow} = require('electron')
 const path = require('node:path')
+const {promisify} = require('node:util')
+const exec = promisify(require("child_process").exec);
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -14,8 +16,13 @@ const createWindow = () => {
   return win.loadURL('http://localhost:3030')
 }
 
+const bootServer = () => {
+  return exec("cd server && npm run start")
+}
+
 
 app.whenReady().then(async () => {
+  await bootServer()
   await createWindow();
 
   app.on('window-all-closed', () => {
