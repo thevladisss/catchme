@@ -1,4 +1,5 @@
-import { useState, useEffect, useReducer } from "react";
+import "./GameContainer.css"
+import {useState, useEffect, useReducer, useMemo} from "react";
 import { useBody } from "../hooks/useBody";
 import Character from "./Character";
 import Point from "./Point"
@@ -14,6 +15,10 @@ type PlayContainerProps = {
 };
 export default function GameContainer(props: PlayContainerProps) {
   const { preventScroll } = useBody();
+
+  const points = useMemo(() => {
+    return props.points.length ? props.points : []
+  }, [props.points])
 
   const handleKeyPress = (e: KeyboardEvent) => {
     switch (e.code) {
@@ -91,13 +96,15 @@ export default function GameContainer(props: PlayContainerProps) {
     setPosition("walkDown");
   };
 
+  const gameContainerWidth = 1000;
+
   return (
-    <div className="flex justify-center">
+    <div className="game-container">
       <div
         className="playground bg-white relative w-full"
-        style={{ height: "70vh", width: "100%" }}
+        style={{ height: "70vh", width: gameContainerWidth }}
       >
-        {(props.points && props.points.length) && props.points.map((point, index) => {
+        { points.map((point, index) => {
           return <Point
             key={index}
             left={point.left}

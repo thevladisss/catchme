@@ -5,4 +5,5 @@ export type GameSession = {
   players: Record<string, Player>;
   nickname: string;
   color: string;
+  score: number
 }

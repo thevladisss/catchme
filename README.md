@@ -1,6 +1,6 @@
-# Snaky.io (temp naming)
+# CATCHme (temp.naming)
 
-Game that mimics and adds on the well known snake game.
+Small React and Node powered game application, that demonstrates skills to integrate live connection and clients data synchronization
 
 ## How to use:
 Please make sure you are using **Node.js 22.0 version**.
