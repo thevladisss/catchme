@@ -143,7 +143,7 @@ const bootWebsocketServer = () => {
             players.forEach((client, connection) => {
               connection.send(
                 JSON.stringify({
-                  points,
+                  points: points && points.length ? points : [],
                   event: SERVER_EVENTS.POINTS_APPEAR
                 })
               )
@@ -237,7 +237,7 @@ const bootWebsocketServer = () => {
         players.forEach((client, connection) => {
           connection.send(
             JSON.stringify({
-              points,
+              points: points && points.length ? points : [],
               event: "points_appear"
             })
           )
