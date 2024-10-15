@@ -220,11 +220,13 @@ const bootWebsocketServer = () => {
         }
       }
 
-      if (points.length < 30) {
+      if (points.length < 15) {
 
-        const amountToCreate = range(10, 40);
+        const maxPoints = 50;
 
-        points = Point.bulkCreatePoints(amountToCreate.map(() => {
+        const amountToCreate = range(Math.abs(15 - maxPoints));
+
+        points = Point.bulkCreatePoints(amountToCreate.map((_,__,array) => {
 
           const position = getRandomPosition();
 

@@ -28,8 +28,11 @@ const deletePoint = (pointId) => {}
  * }[] }
  */
 const bulkCreatePoints = (points) => {
+
+
   points.forEach(point => {
-    const pointId = uniqueId();
+    const pointId = point.pointId ? point.pointId : uniqueId();
+
     Point.set(pointId, {
       pointId,
       left: point.left ? point.left : 0,
@@ -37,6 +40,8 @@ const bulkCreatePoints = (points) => {
       value: point.value ? point.value : 1,
     })
   })
+
+  return points;
 }
 
 const bulkDeletePoints = () => {}
