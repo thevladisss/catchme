@@ -24,6 +24,7 @@ export default function PlaygroundPanel(props: any) {
               sx={{ backgroundColor: "white", color: theme.palette.primary.dark, fontWeight: 'bold' }}
               square
               variant="contained"
+              onClick={props.onPauseGame}
             >
               Pause
             </BaseButton>

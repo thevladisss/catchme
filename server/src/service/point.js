@@ -1,5 +1,5 @@
 const {uniqueId} = require("lodash/util");
-const {inRange} = require("lodash/number");
+const {inRange, random} = require("lodash/number");
 const Point = new Map();
 
 /**
@@ -69,7 +69,56 @@ const deletePointByPosition = (position) => {
   return false;
 }
 
+/**
+ *
+ * @param amount {number}
+ */
+const generateRandomPoints = (amount) => {
+
+  const maxW = 1000, maxH = 700;
+
+  const points = [];
+
+  const margin = 10;
+
+  const pointsDistance = 5;
+
+  for (let i = 0; i < amount; i++) {
+
+    let randomLeft, randomTop;
+
+    do {
+      randomLeft = random(0 + margin, maxW - margin);
+
+      randomTop = random(0 + margin, maxH - margin);
+    }
+    while(points.length < amount && points.some((p) => {
+
+      const pMinLeft = p.left - pointsDistance,
+        pMaxLeft = p.left + pointsDistance,
+        pMinTop = p.top - pointsDistance,
+        pMaxTop = p.top + pointsDistance;
+
+      return (randomLeft > pMinLeft && randomLeft < pMaxLeft) && (randomTop > pMinTop && randomTop < pMaxTop)
+    }));
+
+    points.push({
+      pointId: uniqueId(),
+      left: randomLeft,
+      top: randomTop,
+      value: 1
+    })
+  }
+
+  points.forEach(p => {
+    Point.set(p.pointId, p)
+  })
+
+  return points;
+}
+
 module.exports = {
+  generateRandomPoints,
   getAllPoints,
   bulkCreatePoints,
   deletePointByPosition

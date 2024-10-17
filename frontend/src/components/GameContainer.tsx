@@ -102,7 +102,7 @@ export default function GameContainer(props: PlayContainerProps) {
     <div className="game-container">
       <div
         className="playground bg-white relative w-full"
-        style={{ height: "70vh", width: gameContainerWidth }}
+        style={{ height: "700px", width: gameContainerWidth }}
       >
         { points.map((point, index) => {
           return <Point

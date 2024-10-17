@@ -211,30 +211,13 @@ const bootWebsocketServer = () => {
 
       let points = Point.getAllPoints();
 
-
-      //TODO: Creare util function that gets random position
-      const getRandomPosition = () => {
-        return {
-          left: random(0, 500),
-          top: random(0,500)
-        }
-      }
-
       if (points.length < 15) {
 
         const maxPoints = 50;
 
-        const amountToCreate = range(Math.abs(15 - maxPoints));
+        const amountToCreate = Math.abs(15 - maxPoints);
 
-        points = Point.bulkCreatePoints(amountToCreate.map((_,__,array) => {
-
-          const position = getRandomPosition();
-
-          return {
-            ...position,
-            value: 1,
-          }
-        }))
+        points = Point.generateRandomPoints(amountToCreate);
 
         players.forEach((client, connection) => {
           connection.send(

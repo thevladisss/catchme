@@ -50,6 +50,10 @@ export default function Playground(props?: React.HTMLProps<any>) {
     if (ws.current?.readyState === WebSocket.OPEN) sendJoinGameEvent();
   };
 
+  const handlePauseGame = () => {
+    if (ws.current?.readyState === WebSocket.OPEN) sendPauseEvent();
+  }
+
   const sendSocketEvent = (
     event: string,
     payload: Record<string, any> = {},
@@ -67,6 +71,10 @@ export default function Playground(props?: React.HTMLProps<any>) {
   const sendJoinGameEvent = () => {
     sendSocketEvent(GameClientEventEnum.PLAYER_JOIN);
   };
+
+  const sendPauseEvent = () => {
+    sendSocketEvent(GameClientEventEnum.PLAYER_LEAVE)
+  }
 
   const sendQuitGameEvent = () => {
     sendSocketEvent(GameClientEventEnum.PLAYER_JOIN);
@@ -102,6 +110,10 @@ export default function Playground(props?: React.HTMLProps<any>) {
       score: 0
     });
   };
+
+  const handleQuitGameEvent = (event: MessageEvent<{playerId: number}>) => {
+    setPlayer(null)
+  }
 
   const handlePlayerConnectEvent = (
     event: MessageEvent<PlayerConnectEvent>,
@@ -151,6 +163,10 @@ export default function Playground(props?: React.HTMLProps<any>) {
           handleJoinGameEvent(eventWithData);
         }
 
+        if (data.event === GameServerEventSuccessEnum.QUIT_GAME) {
+          handleQuitGameEvent(eventWithData)
+        }
+
         if (data.event === GameServerActionsEventEnum.PLAYER_CONNECT) {
           handlePlayerConnectEvent(eventWithData);
         }
@@ -183,11 +199,12 @@ export default function Playground(props?: React.HTMLProps<any>) {
 
   return (
     <div>
-      <div style={{ width: "1000px" }} className="px-4 mx-auto">
+      <div style={{ width: "1000px" }} className="mx-auto">
         <PlaygroundPanel
           isInGame={Boolean(player)}
           score={player ? player.score : 0}
           onStartGame={handleStartGame}
+          onPauseGame={handlePauseGame}
         ></PlaygroundPanel>
         <GameContainer
           id={connectionMetaData ? connectionMetaData.connectionId : ""}
